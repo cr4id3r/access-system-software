@@ -1,4 +1,5 @@
 
+using PrKBUSXnet;
 using System.Diagnostics;
 using System.Management;
 
@@ -8,11 +9,14 @@ namespace PorteroGimnasio
     {
 
         private SerialCommunicationManager serialManager;
+        private KBUSXdll kbus;
 
 
         public Form1()
         {
             InitializeComponent();
+
+            kbus = new KBUSXdll();
             FillAvailableComDevices();
         }
 
@@ -104,6 +108,7 @@ namespace PorteroGimnasio
         private void connectToComButton_Click(object sender, EventArgs e)
         {
             // Asegúrate de que se haya seleccionado un dispositivo
+
             string selectedDevice = availableUsbComboBox.SelectedItem as string;
             if (string.IsNullOrEmpty(selectedDevice))
             {
@@ -117,6 +122,12 @@ namespace PorteroGimnasio
             int endIndex = selectedDevice.IndexOf(")", startIndex);
             string comPort = selectedDevice.Substring(startIndex, endIndex - startIndex);
 
+            // comPort a byte
+            byte comPortByte = byte.Parse(comPort);
+            kbus.OpenPort(comPortByte, "", 0);
+            writeLog($"Conexión abierta en puerto {comPort}.");
+
+            /*
             // Inicializa el SerialCommunicationManager con el puerto COM seleccionado
             if (serialManager == null || !serialManager.IsPortOpen())
             {
@@ -128,12 +139,14 @@ namespace PorteroGimnasio
             else
             {
                 writeLog("Ya existe una conexión abierta.");
-            }
+            }*/
         }
 
         private void closeCom_button_Click(object sender, EventArgs e)
         {
-            serialManager.ClosePort();
+            //serialManager.ClosePort();
+
+            kbus.ClosePort();
             writeLog("Conexión cerrada.");
         }
 
